@@ -188,58 +188,44 @@ curl -X DELETE http://localhost:8080/api/bookings/1
 
 ## Proto File
 
-The gRPC service contract is defined in `booking_service.proto`:
+The gRPC service contract is defined in both projects:
 
 ```protobuf
 syntax = "proto3";
+option java_package = "com.booking.grpc";
 
-package booking;
+service BookingService {
+  rpc Get(BookingRequestId) returns (BookingResponse);
+  rpc GetAll(BookingRequestPaged) returns (BookingResponse);
+  rpc Post(BookingRequest) returns (BookingResponse);
+  rpc Put(BookingRequest) returns (BookingResponse);
+  rpc Delete(BookingRequestId) returns (BookingResponse);
+}
 
-option java_package = "com.library.booking.grpc";
-option java_multiple_files = true;
+message BookingRequestPaged {
+  string uuid = 1;
+  string page = 2;
+}
 
-// ── Messages ────────────────────────────────────────────────────────────────
+message BookingRequestId {
+  string uuid = 1;
+  string id = 2;
+}
 
 message BookingRequest {
-  int64  user_id    = 1;
-  int64  product_id = 2;
-  string start_date = 3; // ISO-8601: yyyy-MM-dd
-  string end_date   = 4;
+  string uuid = 1;
+  string id = 2;
+  string name = 3;
+  string author = 4;
+  string price = 5;
+  string language = 6;
+  string pages = 7;
+  string format = 8;
 }
 
 message BookingResponse {
-  int64  booking_id = 1;
-  int64  user_id    = 2;
-  int64  product_id = 3;
-  string start_date = 4;
-  string end_date   = 5;
-  string status     = 6; // PENDING | CONFIRMED | CANCELLED
-}
-
-message BookingIdRequest {
-  int64 booking_id = 1;
-}
-
-message BookingListResponse {
-  repeated BookingResponse bookings = 1;
-}
-
-message UpdateBookingRequest {
-  int64  booking_id = 1;
-  string end_date   = 2;
-  string status     = 3;
-}
-
-message Empty {}
-
-// ── Service ─────────────────────────────────────────────────────────────────
-
-service BookingService {
-  rpc CreateBooking (BookingRequest)       returns (BookingResponse);
-  rpc GetBooking    (BookingIdRequest)     returns (BookingResponse);
-  rpc ListBookings  (Empty)               returns (BookingListResponse);
-  rpc UpdateBooking (UpdateBookingRequest) returns (BookingResponse);
-  rpc CancelBooking (BookingIdRequest)     returns (Empty);
+  int32 status = 1;
+  string payload = 2;
 }
 ```
 
