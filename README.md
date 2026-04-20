@@ -11,20 +11,19 @@ A library management system built with **Java 21**, **Quarkus**, **Maven**, **gR
 - Manage library resources: **Bookings**, **Users**, **Products** (books), and **Orders**
 - Expose a RESTful CRUD API for each domain
 - Expose a gRPC API for inter-service communication (e.g., booking status notifications)
-- Support creating, reading, updating, and cancelling bookings
-- Associate bookings with users and specific library products (books)
+- Support creating, reading, updating, and delete books.
 - Persist all data in a relational database (PostgreSQL)
 
 ### Non-Functional Requirements
 
-- Java 21 (LTS)
-- Quarkus framework for fast startup and low memory footprint
-- Maven for dependency management and build lifecycle
-- REST API following OpenAPI 3.x specification
-- gRPC for efficient binary communication between services
-- PostgreSQL as the primary relational database
-- Containerizable via Docker / Podman
-- Health check endpoints (`/q/health`)
+- Java 21 (LTS).
+- Quarkus framework for fast startup and low memory footprint.
+- Maven for dependency management and build lifecycle.
+- REST API following OpenAPI 3.x specification.
+- gRPC for efficient binary communication between services.
+- PostgreSQL as the primary relational database.
+- Containerizable via Docker / Podman.
+- Health check endpoints (`/q/health`).
 
 ---
 
@@ -32,21 +31,11 @@ A library management system built with **Java 21**, **Quarkus**, **Maven**, **gR
 
 This project is a **library management backend** created with [Quarkus](https://quarkus.io/) and Java 21. It integrates two main communication layers:
 
-1. **REST API** — exposes a full CRUD interface over the core library domains: Bookings, Users, Products, and Orders. The first implemented service covers the **Bookings** domain, allowing clients to create, retrieve, update, and cancel book reservations.
+1. **REST API** — exposes a full CRUD interface over the core library domains: Bookings, Users, Products, and Orders. The first implemented service covers the **Bookings** domain, allowing clients to create, retrieve, update, and delelte books.
 
-2. **gRPC API** — provides a high-performance binary protocol for internal or service-to-service communication, initially used for booking management operations.
+2. **gRPC API** — provides a high-performance binary protocol for internal or service-to-service communication, initially used for booking operations.
 
-Both services share a **PostgreSQL** database whose schema is managed via versioned SQL scripts.
-
----
-
-## Source Code
-
-| Component | Repository |
-|---|---|
-| REST API (Quarkus) | https://github.com/gandresAOQ/library-manager |
-| gRPC API | https://github.com/gandresAOQ/booking-manager |
-| Database scripts | https://github.com/gandresAOQ/library-database-scripts |
+gRPC API service integrates a **PostgreSQL** database whose schema is managed via versioned SQL scripts.
 
 ---
 
@@ -58,6 +47,16 @@ Both services share a **PostgreSQL** database whose schema is managed via versio
 | **Product** | A library item (book) available for borrowing |
 | **User** | A registered library member |
 | **Order** | A checkout record associated with one or more bookings |
+
+---
+
+## Source Code
+
+| Component | Repository |
+|---|---|
+| REST API (Quarkus) | https://github.com/gandresAOQ/library-manager |
+| gRPC API | https://github.com/gandresAOQ/booking-manager |
+| Database scripts | https://github.com/gandresAOQ/library-database-scripts |
 
 ---
 
@@ -105,23 +104,11 @@ flowchart TD
 ### 1. Start PostgreSQL
 
 ```bash
-docker run --name library-db \
-  -e POSTGRES_USER=library \
-  -e POSTGRES_PASSWORD=library \
-  -e POSTGRES_DB=library_db \
-  -p 5432:5432 -d postgres:16
-```
-
-### 2. Apply Database Scripts
-
-```bash
-# Clone the database scripts repo and run migrations
 git clone https://github.com/gandresAOQ/library-database-scripts
-cd library-database-scripts
-# Follow the README in that repo to apply migrations
+docker compose up -d
 ```
 
-### 3. Run the REST API
+### 2. Run the REST API
 
 ```bash
 git clone https://github.com/gandresAOQ/library-manager
@@ -130,7 +117,7 @@ cd library-manager
 # Available at http://localhost:8080
 ```
 
-### 4. Run the gRPC Service
+### 3. Run the gRPC Service
 
 ```bash
 git clone https://github.com/gandresAOQ/booking-manager
@@ -146,42 +133,57 @@ cd booking-manager
 ### Create a Booking
 
 ```bash
-curl -X POST http://localhost:8080/api/bookings \
-  -H "Content-Type: application/json" \
-  -d '{
-    "userId": 1,
-    "productId": 42,
-    "startDate": "2026-05-01",
-    "endDate": "2026-05-15"
-  }'
+curl --location 'http://localhost:8080/v1/library/bookings' \
+--header 'x-rquest-id: 748a2967-a027-43f9-80be-3d1c46c08205' \
+--header 'Content-Type: application/json' \
+--data '{
+    "id": "1",
+    "name": "Test book",
+    "author": "Test author",
+    "price": "123",
+    "language": "Spanish",
+    "pages": "1",
+    "format": "Web"
+}'
 ```
 
 ### Get All Bookings
 
 ```bash
-curl http://localhost:8080/api/bookings
+curl --location 'http://localhost:8080/v1/library/bookings' \
+--header 'x-rquest-id: 748a2967-a027-43f9-80be-3d1c46c08205'
 ```
 
 ### Get a Booking by ID
 
 ```bash
-curl http://localhost:8080/api/bookings/1
+curl --location 'http://localhost:8080/v1/library/bookings/1' \
+--header 'x-rquest-id: 748a2967-a027-43f9-80be-3d1c46c08205'
 ```
 
 ### Update a Booking
 
 ```bash
-curl -X PUT http://localhost:8080/api/bookings/1 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "endDate": "2026-05-20"
-  }'
+curl --location --request PUT 'http://localhost:8080/v1/library/bookings/1' \
+--header 'x-rquest-id: 748a2967-a027-43f9-80be-3d1c46c08205' \
+--header 'Content-Type: application/json' \
+--data '{
+    "id": "1",
+    "name": "Test book",
+    "author": "Test author",
+    "price": "123",
+    "language": "English",
+    "pages": "1",
+    "format": "Physical"
+}'
 ```
 
 ### Cancel (Delete) a Booking
 
 ```bash
-curl -X DELETE http://localhost:8080/api/bookings/1
+curl --location --request DELETE 'http://localhost:8080/v1/library/bookings/1' \
+--header 'x-rquest-id: 748a2967-a027-43f9-80be-3d1c46c08205' \
+--header 'Content-Type: application/json'
 ```
 
 ---
