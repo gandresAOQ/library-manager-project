@@ -140,10 +140,10 @@ curl --location 'http://localhost:8080/v1/library/bookings' \
     "id": "1",
     "name": "Test book",
     "author": "Test author",
-    "price": "123",
-    "language": "Spanish",
-    "pages": "1",
-    "format": "Web"
+    "price": 123.0,
+    "language": "SPANISH",
+    "pages": 100,
+    "format": "EBOOK"
 }'
 ```
 
@@ -164,17 +164,17 @@ curl --location 'http://localhost:8080/v1/library/bookings/1' \
 ### Update a Booking
 
 ```bash
-curl --location --request PUT 'http://localhost:8080/v1/library/bookings/1' \
+curl --location 'http://localhost:8080/v1/library/bookings' \
 --header 'x-rquest-id: 748a2967-a027-43f9-80be-3d1c46c08205' \
 --header 'Content-Type: application/json' \
 --data '{
     "id": "1",
     "name": "Test book",
     "author": "Test author",
-    "price": "123",
-    "language": "English",
-    "pages": "1",
-    "format": "Physical"
+    "price": 125.0,
+    "language": "ENGLISH",
+    "pages": 100,
+    "format": "PAPERBACK"
 }'
 ```
 
@@ -196,6 +196,20 @@ The gRPC service contract is defined in both projects:
 syntax = "proto3";
 option java_package = "com.booking.grpc";
 
+enum BookFormat {
+  UNKNOWN_FORMAT = 0;
+  HARDCOVER = 1;
+  PAPERBACK = 2;
+  EBOOK = 3;
+}
+
+enum BookLanguage {
+  UNKNOWN_LANGUAGE = 0;
+  ENGLISH = 1;
+  SPANISH = 2;
+  FRENCH = 3;
+}
+
 service BookingService {
   rpc Get(BookingRequestId) returns (BookingResponse);
   rpc GetAll(BookingRequestPaged) returns (BookingResponse);
@@ -215,18 +229,17 @@ message BookingRequestId {
 }
 
 message BookingRequest {
-  string uuid = 1;
-  string id = 2;
-  string name = 3;
-  string author = 4;
-  string price = 5;
-  string language = 6;
-  string pages = 7;
-  string format = 8;
+  string       uuid     = 1;
+  string       id       = 2;
+  string       name     = 3;
+  string       author   = 4;
+  double       price    = 5;
+  BookLanguage language = 6;
+  int32        pages    = 7;
+  BookFormat   format   = 8;
 }
 
 message BookingResponse {
-  int32 status = 1;
   string payload = 2;
 }
 ```
