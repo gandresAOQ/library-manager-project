@@ -276,6 +276,7 @@ grpcurl -plaintext -d '{"booking_id":1}' \
 |---|---|---|
 | **Quarkus over Spring Boot** | Faster startup, lower memory usage, native image support | Smaller ecosystem; less community documentation than Spring |
 | **gRPC alongside REST** | Efficient binary protocol for internal calls; strongly typed contracts via proto files | Extra complexity; requires protobuf tooling |
+| **Reactive programming using Mutiny** | Best way to manage the flows and threads of both applications | Steep learning curve to apply |
 | **PostgreSQL** | Strong ACID guarantees, rich JSON support, mature tooling | Heavier than embedded DBs; requires a running instance for dev |
 | **Separate repos per service** | Clear ownership boundaries; independent deployment and versioning | More overhead managing multiple repos and coordinating releases |
 | **Bookings as first iteration** | Core domain that exercises all layers (REST, DB, gRPC) end-to-end | Other domains (Users, Products, Orders) are initially stubs |
