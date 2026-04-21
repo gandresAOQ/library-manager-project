@@ -164,7 +164,7 @@ curl --location 'http://localhost:8080/v1/library/bookings/1' \
 ### Update a Booking
 
 ```bash
-curl --location 'http://localhost:8080/v1/library/bookings' \
+curl --location --request PUT 'http://localhost:8080/v1/library/bookings/1' \
 --header 'x-rquest-id: 748a2967-a027-43f9-80be-3d1c46c08205' \
 --header 'Content-Type: application/json' \
 --data '{
